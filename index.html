@@ -76,13 +76,37 @@ canvas{
 <script>
 const app = document.getElementById("app");
 
-/* ---------- START SCREEN ---------- */
 function startScreen(){
   app.innerHTML = `
     <p>Gotowa na małą grę o nas? 💖</p>
-    <button onclick="startQuiz()">TAK 💕</button>
+    <button class="yes" id="yes">TAK 💕</button>
+    <button class="no" id="no">NIE 😄</button>
   `;
+
+  const yes = document.getElementById("yes");
+  const no = document.getElementById("no");
+
+  function moveNo(){
+    const x = Math.random() * (window.innerWidth - no.offsetWidth);
+    const y = Math.random() * (window.innerHeight - no.offsetHeight);
+
+    no.style.position = "fixed";
+    no.style.left = x + "px";
+    no.style.top = y + "px";
+  }
+
+  // ПК
+  no.addEventListener("mouseover", moveNo);
+
+  // Телефон (очень важно!)
+  no.addEventListener("touchstart", (e)=>{
+    e.preventDefault();
+    moveNo();
+  });
+
+  yes.onclick = startQuiz;
 }
+
 
 const quiz = [
 {
@@ -179,6 +203,8 @@ function checkAnswer(btn){
   const selected = Number(btn.dataset.i);
   const q = quiz[index];
 
+  let isCorrect = q.correct.includes(selected);
+
   document.querySelectorAll(".option").forEach((b,i)=>{
     if(q.correct.includes(i)){
       b.classList.add("correct");
@@ -190,39 +216,52 @@ function checkAnswer(btn){
     b.disabled = true;
   });
 
-  app.innerHTML += `<button class="next" onclick="nextQuestion()">Dalej ➡️</button>`;
-}
-
-function nextQuestion(){
-  index++;
-  if(index < quiz.length){
-    renderQuestion();
+  // Переход дальше ТОЛЬКО если ответ правильный
+  if(isCorrect){
+    app.innerHTML += `<button class="next" onclick="nextQuestion()">Dalej ➡️</button>`;
   } else {
-    drawHeart();
+    app.innerHTML += `<button class="next" onclick="renderQuestion()">Spróbuj jeszcze raz 🔁</button>`;
   }
 }
 
-/* ---------- RYSOWANE SERCE NA ŚRODKU 💖 ---------- */
+
 function drawHeart(){
-  document.body.innerHTML = `<canvas id="heartCanvas"></canvas>`;
-  const canvas = document.getElementById("heartCanvas");
+  // УБИРАЕМ ВСЮ старую разметку включая белую карточку
+  document.body.innerHTML = "";
+
+  // создаём fullscreen canvas
+  const canvas = document.createElement("canvas");
+  document.body.appendChild(canvas);
+
   const ctx = canvas.getContext("2d");
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
 
-  let t = 0;
+  resize();
+  window.addEventListener("resize", resize);
+
+  document.body.style.margin = "0";
+  document.body.style.background = "black";
+  document.body.style.overflow = "hidden";
+
+  let progress = 0;
 
   function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.beginPath();
 
-    for(let i = 0; i < t; i += 0.01){
-      let x = 16*Math.pow(Math.sin(i),3);
-      let y = -(13*Math.cos(i)-5*Math.cos(2*i)-2*Math.cos(3*i)-Math.cos(4*i));
+    const scale = Math.min(canvas.width, canvas.height) / 40;
+
+    for(let t = 0; t < progress; t += 0.01){
+      let x = 16*Math.pow(Math.sin(t),3);
+      let y = -(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
+
       ctx.lineTo(
-        canvas.width/2 + x*15,
-        canvas.height/2 + y*15
+        canvas.width/2 + x*scale,
+        canvas.height/2 + y*scale
       );
     }
 
@@ -230,19 +269,20 @@ function drawHeart(){
     ctx.lineWidth = 4;
     ctx.stroke();
 
-    if(t < Math.PI * 2){
-      t += 0.02;
+    if(progress < Math.PI * 2){
+      progress += 0.03;
       requestAnimationFrame(animate);
     } else {
-      ctx.font = "32px Arial";
+      ctx.font = "bold 36px Arial";
       ctx.fillStyle = "white";
       ctx.textAlign = "center";
-      ctx.fillText("Dla Ciebie Kinga 💖", canvas.width/2, canvas.height/2 + 120);
+      ctx.fillText("Dla Ciebie Kinga 💖", canvas.width/2, canvas.height/2 + scale*15);
     }
   }
 
   animate();
 }
+
 
 startScreen();
 </script>
