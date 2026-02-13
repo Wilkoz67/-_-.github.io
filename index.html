@@ -1,235 +1,244 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dla Kingi 💖</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dla Kingi 💖</title>
 
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-      font-family: Arial, sans-serif;
-      transition: background 0.5s ease;
-    }
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#ff9a9e,#fad0c4);
+  font-family:Arial,sans-serif;
+  transition:background 0.6s ease;
+}
 
-    .card {
-      background: white;
-      padding: 25px 20px;
-      border-radius: 20px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      width: 90%;
-      max-width: 420px;
-    }
+.card{
+  background:white;
+  padding:25px 20px;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  width:90%;
+  max-width:420px;
+}
 
-    h1 {
-      color: #ff4d6d;
-      font-size: 22px;
-      margin-bottom: 15px;
-    }
+h1{
+  color:#ff4d6d;
+  font-size:22px;
+}
 
-    p {
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
+p{
+  font-size:18px;
+  margin-bottom:20px;
+}
 
-    button {
-      width: 100%;
-      padding: 14px;
-      margin: 8px 0;
-      font-size: 16px;
-      border-radius: 30px;
-      border: none;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+button{
+  width:100%;
+  padding:14px;
+  margin:8px 0;
+  font-size:16px;
+  border-radius:30px;
+  border:none;
+  cursor:pointer;
+  transition:0.3s;
+}
 
-    .yes { background:#ff4d6d; color:white; }
-    .no  { background:#ddd; }
+.yes{background:#ff4d6d;color:white;}
+.no{background:#ddd;}
 
-    .option { background:#f2f2f2; }
-    .option.correct { background:#4caf50; color:white; }
-    .option.wrong { background:#e53935; color:white; }
+.option{background:#f2f2f2;}
+.correct{background:#4caf50 !important;color:white;}
+.wrong{background:#e53935 !important;color:white;}
 
-    .next {
-      background:#667eea;
-      color:white;
-      margin-top:15px;
-    }
-  </style>
+.next{
+  background:#667eea;
+  color:white;
+  margin-top:15px;
+}
+canvas{
+  background:transparent;
+}
+</style>
 </head>
 
 <body>
-
 <div class="card" id="app"></div>
 
 <script>
-/* ---------------- START SCREEN ---------------- */
-
 const app = document.getElementById("app");
 
-function startScreen() {
+/* -------- START SCREEN (NIE UCIEKA - ZOSTAJE) -------- */
+function startScreen(){
   app.innerHTML = `
-    <h1>💖 Dla najpiękniejszej Kingi 💖</h1>
-    <p>Uśmiechniesz się dziś razem ze mną? 🙂</p>
+    <h1>💖 Dla Kingi 💖</h1>
+    <p>Gotowa na małą grę o nas? 🙂</p>
     <button class="yes" id="yes">TAK 💕</button>
     <button class="no" id="no">NIE 😄</button>
   `;
 
   const yes = document.getElementById("yes");
-  const no  = document.getElementById("no");
+  const no = document.getElementById("no");
 
-  function moveNo() {
-    no.style.position = "fixed";
-    no.style.left = Math.random() * (window.innerWidth - no.offsetWidth) + "px";
-    no.style.top  = Math.random() * (window.innerHeight - no.offsetHeight) + "px";
+  function moveNo(){
+    no.style.position="fixed";
+    no.style.left=Math.random()*(window.innerWidth-no.offsetWidth)+"px";
+    no.style.top=Math.random()*(window.innerHeight-no.offsetHeight)+"px";
   }
 
-  no.addEventListener("mouseover", moveNo);
-  no.addEventListener("touchstart", e => { e.preventDefault(); moveNo(); });
-
-  yes.onclick = startQuiz;
+  no.addEventListener("mouseover",moveNo);
+  no.addEventListener("touchstart",(e)=>{e.preventDefault();moveNo();});
+  yes.onclick=startQuiz;
 }
 
-/* ---------------- QUIZ DATA ---------------- */
-
-const quiz = [
-  {
-    q: "Którego dnia się poznaliśmy? 💭",
-    options: ["27 listopada", "28 listopada"],
-    correct: [0]
-  },
-  {
-    q: "Jaka była Twoja pierwsza fraza w moim Mercedesie? 🚗",
-    options: ["Patrz, jakie ładne buty", "Ja aprawdaju", "Jedź szybciej"],
-    correct: [1]
-  },
-  {
-    q: "W który policzek Cię pocałowałem? 💋",
-    options: ["Prawy", "Lewy"],
-    correct: [1]
-  },
-  {
-    q: "Z jakiej mojej frazy śmiałaś się do łez? 😂",
-    options: [
-      "Ja zadalbasia za Wami chodzić",
-      "Zapomniałem gdzie stoi samochód",
-      "U mnie co, uszy brudne?"
-    ],
-    correct: [2]
-  },
-  {
-    q: "Gdzie najbardziej chcieliśmy pojechać? ✈️",
-    options: ["Białystok", "Mińsk", "Kijów", "Warszawa"],
-    correct: [1]
-  },
-  {
-    q: "Jaka jest Twoja ulubiona fraza do mnie? 😄",
-    options: ["Zuszek", "Debil", "Halop"],
-    correct: [1]
-  },
-  {
-    q: "Co powiedziałaś, gdy poznałaś mój znak zodiaku? ",
-    options: ["Afigienno", "Prikolno", "Najważniejsze, że nie Lew", "Nic"],
-    correct: [2]
-  },
-  {
-    q: "Co najbardziej Mi się w tobie podoba? 😏 ",
-    options: ["Figura", "Twarz", "Oczy", "Humor"],
-    correct: [0,1,2,3],
-    multi: true
-  },
-  {
-    q: "Jaka cecha charakteru podoba mi się w Tobie najbardziej? 💖",
-    options: ["Energiczność", "Śmiałość", "Wytrwałość", "Szacunek"],
-    correct: [3]
-  },
-  {
-    q: "Spontaniczny wyjazd czy zaplanowany? 🌍",
-    options: ["Spontaniczny", "Zaplanowany"],
-    correct: [] // просто выбор
-  }
+/* -------- QUIZ (ОБНОВЛЁННЫЕ ВОПРОСЫ) -------- */
+const quiz=[
+{
+q:"Którego dnia się poznaliśmy? 💭",
+options:["27 listopada","28 listopada"],
+correct:[0]
+},
+{
+q:"Jaka była Twoja pierwsza fraza w moim Mercedesie? 🚗",
+options:["Patrz jakie ładne buty","Ja sprawdzam","Jedź szybciej"],
+correct:[1]
+},
+{
+q:"Z jakiej mojej frazy śmiałaś się najmocniej? 😂",
+options:[
+"Ja zadbałbym za Wami chodzić",
+"Zapomniałem gdzie stoi samochód",
+"U mnie co, uszy brudne?"
+],
+correct:[2]
+},
+{
+q:"Gdzie najbardziej chcieliśmy pojechać razem? ✈️",
+options:["Białystok","Mińsk","Kijów","Warszawa"],
+correct:[1]
+},
+{
+q:"Jaka jest Twoja ulubiona fraza do mnie? 😄",
+options:["Złotek","Debil","Halo"],
+correct:[1]
+},
+{
+q:"Co powiedziałaś gdy poznałaś mój znak zodiaku? ♌",
+options:["Afigienno","Prikolno","Najważniejsze że nie Lew","Nic"],
+correct:[2]
+},
+{
+q:"Jak myślisz co ja bardziej lubię? 🍕🥙",
+options:["Pizza","Kebab"],
+correct:[0]
+},
+{
+q:"Jakie państwo chciałbym najbardziej odwiedzić z Tobą w 2026? 🌍",
+options:["Polska","Białoruś","Italia","Turcja"],
+correct:[0,2] // Polska i Italia правильные
+},
+{
+q:"Jakie jest moje imię bierzmowane? ⛪",
+options:["Adam","Paweł","Karol","Antony"],
+correct:[1]
+}
 ];
 
-let index = 0;
-let selected = [];
+let index=0;
 
-/* ---------------- QUIZ LOGIC ---------------- */
-
-function startQuiz() {
-  document.body.style.background =
-    "linear-gradient(135deg,#667eea,#764ba2)";
-  index = 0;
+/* -------- QUIZ LOGIC -------- */
+function startQuiz(){
+  document.body.style.background="linear-gradient(135deg,#667eea,#764ba2)";
+  index=0;
   renderQuestion();
 }
 
-function renderQuestion() {
-  selected = [];
-  const q = quiz[index];
-
-  let html = `<p>${q.q}</p>`;
+function renderQuestion(){
+  const q=quiz[index];
+  let html=`<p>${q.q}</p>`;
   q.options.forEach((opt,i)=>{
-    html += `<button class="option" data-i="${i}">${opt}</button>`;
+    html+=`<button class="option" data-i="${i}">${opt}</button>`;
   });
-
-  app.innerHTML = html;
+  app.innerHTML=html;
 
   document.querySelectorAll(".option").forEach(btn=>{
-    btn.onclick = () => selectOption(btn);
+    btn.onclick=()=>select(btn);
   });
 }
 
-function selectOption(btn) {
-  const q = quiz[index];
-  const i = Number(btn.dataset.i);
+function select(btn){
+  const q=quiz[index];
+  const selected=Number(btn.dataset.i);
 
-  if(q.multi){
-    btn.classList.toggle("correct");
-    selected.includes(i) ? selected.splice(selected.indexOf(i),1) : selected.push(i);
-  } else {
-    checkAnswer([i]);
-  }
-
-  if(q.multi){
-    if(selected.length === q.correct.length){
-      checkAnswer(selected);
-    }
-  }
-}
-
-function checkAnswer(ans){
-  const q = quiz[index];
   document.querySelectorAll(".option").forEach((b,i)=>{
-    if(q.correct.includes(i)) b.classList.add("correct");
-    else if(ans.includes(i)) b.classList.add("wrong");
-    b.disabled = true;
+    if(q.correct.includes(i)){
+      b.classList.add("correct");
+      b.innerHTML=b.innerHTML+" ✅";
+    }else if(i===selected){
+      b.classList.add("wrong");
+      b.innerHTML=b.innerHTML+" ❌";
+    }
+    b.disabled=true;
   });
 
-  app.innerHTML += `<button class="next" onclick="next()">Dalej ➡️</button>`;
+  app.innerHTML+=`<button class="next" onclick="next()">Dalej ➡️</button>`;
 }
 
 function next(){
   index++;
-  if(index < quiz.length) renderQuestion();
-  else finish();
+  if(index<quiz.length){
+    renderQuestion();
+  }else{
+    showHeart();
+  }
 }
 
-function finish(){
-  app.innerHTML = `
-    <h1>✨ Koniec ✨</h1>
-    <p>Mała podróż przez nasze wspomnienia 😊</p>
-  `;
-}
+/* -------- HEART FINAL ANIMATION 💖 -------- */
+function showHeart(){
+  document.body.style.background="#000";
+  app.innerHTML=`<canvas id="heartCanvas"></canvas>`;
+  const canvas=document.getElementById("heartCanvas");
+  const ctx=canvas.getContext("2d");
 
-/* ---------------- INIT ---------------- */
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+
+  let t=0;
+
+  function drawHeart(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.beginPath();
+
+    for(let i=0;i<Math.PI*2;i+=0.01){
+      let x=16*Math.pow(Math.sin(i),3);
+      let y=-(13*Math.cos(i)-5*Math.cos(2*i)-2*Math.cos(3*i)-Math.cos(4*i));
+      ctx.lineTo(
+        canvas.width/2 + x*10,
+        canvas.height/2 + y*10
+      );
+    }
+
+    ctx.strokeStyle="red";
+    ctx.lineWidth=3;
+    ctx.stroke();
+
+    ctx.font="24px Arial";
+    ctx.fillStyle="white";
+    ctx.textAlign="center";
+    ctx.fillText("Dla Ciebie 💖", canvas.width/2, canvas.height/2+120);
+
+    t+=0.02;
+    requestAnimationFrame(drawHeart);
+  }
+
+  drawHeart();
+}
 
 startScreen();
 </script>
-
 </body>
 </html>
