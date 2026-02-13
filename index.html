@@ -61,6 +61,12 @@ button:hover{
   background:#ff4d6d;
   color:white;
 }
+
+canvas{
+  position:fixed;
+  top:0;
+  left:0;
+}
 </style>
 </head>
 
@@ -70,15 +76,14 @@ button:hover{
 <script>
 const app = document.getElementById("app");
 
-/* START SCREEN (NIE UCIEKA ZOSTAJE) */
+/* ---------- START SCREEN ---------- */
 function startScreen(){
   app.innerHTML = `
-    <p>Gotowa na małą grę o nas? 🙂</p>
+    <p>Gotowa na małą grę o nas? 💖</p>
     <button onclick="startQuiz()">TAK 💕</button>
   `;
 }
 
-/* NOWE PYTANIA (BEZ POCAŁUNKU) */
 const quiz = [
 {
 q:"Którego dnia się poznaliśmy? 💭",
@@ -105,6 +110,16 @@ options:["Białystok","Mińsk","Kijów","Warszawa"],
 correct:[1]
 },
 {
+q:"Jaka jest Twoja ulubiona fraza do mnie? 😄",
+options:["Złotek","Debil","Halo"],
+correct:[1]
+},
+{
+q:"Co powiedziałaś gdy poznałaś mój znak zodiaku? ♌",
+options:["Afigienno","Prikolno","Najważniejsze że nie Lew","Nic"],
+correct:[2]
+},
+{
 q:"Jak myślisz co ja bardziej lubię? 🍕",
 options:["Pizza","Kebab"],
 correct:[0]
@@ -118,11 +133,30 @@ correct:[0,2]
 q:"Jakie jest moje imię bierzmowane? ⛪",
 options:["Adam","Paweł","Karol","Antony"],
 correct:[1]
+},
+
+// 🔥 ТЫ ПРОСИЛ ЭТИ ВОПРОСЫ — ВОЗВРАЩАЕМ
+{
+q:"Co najbardziej Ci się we mnie podoba? 😏 (zaznacz wszystko)",
+options:["Figura","Twarz","Oczy","Humor"],
+correct:[0,1,2,3],
+multi:true
+},
+{
+q:"Jaka cecha charakteru podoba mi się w Tobie najbardziej? 💖",
+options:["Energiczność","Śmiałość","Wytrwałość","Szacunek"],
+correct:[3]
+},
+{
+q:"Spontaniczny wyjazd czy zaplanowany? 🌍",
+options:["Spontaniczny","Zaplanowany"],
+correct:[] 
 }
 ];
 
 let index = 0;
 
+/* ---------- QUIZ ---------- */
 function startQuiz(){
   index = 0;
   renderQuestion();
@@ -164,40 +198,50 @@ function nextQuestion(){
   if(index < quiz.length){
     renderQuestion();
   } else {
-    showHeart();
+    drawHeart();
   }
 }
 
-/* SERDUSZKO NA KONIEC */
-function showHeart(){
-  document.body.style.background = "#000";
-  app.innerHTML = `<canvas id="c"></canvas>`;
-  const c = document.getElementById("c");
-  const ctx = c.getContext("2d");
+/* ---------- RYSOWANE SERCE NA ŚRODKU 💖 ---------- */
+function drawHeart(){
+  document.body.innerHTML = `<canvas id="heartCanvas"></canvas>`;
+  const canvas = document.getElementById("heartCanvas");
+  const ctx = canvas.getContext("2d");
 
-  c.width = window.innerWidth;
-  c.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-  function drawHeart(){
-    ctx.clearRect(0,0,c.width,c.height);
+  let t = 0;
+
+  function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.beginPath();
-    for(let t=0;t<Math.PI*2;t+=0.01){
-      let x = 16*Math.pow(Math.sin(t),3);
-      let y = -(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
-      ctx.lineTo(c.width/2 + x*12, c.height/2 + y*12);
+
+    for(let i = 0; i < t; i += 0.01){
+      let x = 16*Math.pow(Math.sin(i),3);
+      let y = -(13*Math.cos(i)-5*Math.cos(2*i)-2*Math.cos(3*i)-Math.cos(4*i));
+      ctx.lineTo(
+        canvas.width/2 + x*15,
+        canvas.height/2 + y*15
+      );
     }
-    ctx.strokeStyle="red";
-    ctx.lineWidth=3;
+
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 4;
     ctx.stroke();
 
-    ctx.font="26px Arial";
-    ctx.fillStyle="white";
-    ctx.textAlign="center";
-    ctx.fillText("Dla Ciebie Kinga 💖", c.width/2, c.height/2+140);
-
-    requestAnimationFrame(drawHeart);
+    if(t < Math.PI * 2){
+      t += 0.02;
+      requestAnimationFrame(animate);
+    } else {
+      ctx.font = "32px Arial";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.fillText("Dla Ciebie Kinga 💖", canvas.width/2, canvas.height/2 + 120);
+    }
   }
-  drawHeart();
+
+  animate();
 }
 
 startScreen();
