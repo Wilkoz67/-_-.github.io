@@ -39,7 +39,7 @@ button{
   border-radius:30px;
   border:none;
   cursor:pointer;
-  transition:0.3s;
+  transition:0.25s;
   background:#f2f2f2;
 }
 
@@ -60,6 +60,7 @@ button:hover{
 .next{
   background:#ff4d6d;
   color:white;
+  font-weight:bold;
 }
 
 canvas{
@@ -76,11 +77,12 @@ canvas{
 <script>
 const app = document.getElementById("app");
 
+/* ---------- START SCREEN (NIE UCIEKA) ---------- */
 function startScreen(){
   app.innerHTML = `
     <p>Gotowa na małą grę o nas? 💖</p>
-    <button class="yes" id="yes">TAK 💕</button>
-    <button class="no" id="no">NIE 😄</button>
+    <button id="yes">TAK 💕</button>
+    <button id="no">NIE 😄</button>
   `;
 
   const yes = document.getElementById("yes");
@@ -89,16 +91,12 @@ function startScreen(){
   function moveNo(){
     const x = Math.random() * (window.innerWidth - no.offsetWidth);
     const y = Math.random() * (window.innerHeight - no.offsetHeight);
-
     no.style.position = "fixed";
     no.style.left = x + "px";
     no.style.top = y + "px";
   }
 
-  // ПК
   no.addEventListener("mouseover", moveNo);
-
-  // Телефон (очень важно!)
   no.addEventListener("touchstart", (e)=>{
     e.preventDefault();
     moveNo();
@@ -107,7 +105,7 @@ function startScreen(){
   yes.onclick = startQuiz;
 }
 
-
+/* ---------- QUIZ ---------- */
 const quiz = [
 {
 q:"Którego dnia się poznaliśmy? 💭",
@@ -116,13 +114,13 @@ correct:[0]
 },
 {
 q:"Jaka była Twoja pierwsza fraza w moim Mercedesie? 🚗",
-options:["Patrz jakie ładne buty","Ja sprawdzam","Jedź szybciej"],
+options:["Patrz jakie ładne buty","Ja aprawdaju","Jedź szybciej"],
 correct:[1]
 },
 {
-q:"Z jakiej mojej frazy śmiałaś się najmocniej? 😂",
+q:"Z jakiej mojej frazy śmiałaś się najmocniej w Ozasie ze az upadla na kolana? 😂",
 options:[
-"Ja zadbałbym za Wami chodzić",
+"Ja zadalbalsia za Wami chodzić",
 "Zapomniałem gdzie stoi samochód",
 "U mnie co, uszy brudne?"
 ],
@@ -135,7 +133,7 @@ correct:[1]
 },
 {
 q:"Jaka jest Twoja ulubiona fraza do mnie? 😄",
-options:["Złotek","Debil","Halo"],
+options:["Zuszek","Debil","Halop"],
 correct:[1]
 },
 {
@@ -158,10 +156,8 @@ q:"Jakie jest moje imię bierzmowane? ⛪",
 options:["Adam","Paweł","Karol","Antony"],
 correct:[1]
 },
-
-// 🔥 ТЫ ПРОСИЛ ЭТИ ВОПРОСЫ — ВОЗВРАЩАЕМ
 {
-q:"Co najbardziej Ci się we mnie podoba? 😏 (zaznacz wszystko)",
+q:"Co najbardziej Mi się w tobie  podoba? 😏 ",
 options:["Figura","Twarz","Oczy","Humor"],
 correct:[0,1,2,3],
 multi:true
@@ -174,78 +170,112 @@ correct:[3]
 {
 q:"Spontaniczny wyjazd czy zaplanowany? 🌍",
 options:["Spontaniczny","Zaplanowany"],
-correct:[] 
+correct:[],
+free:true
 }
 ];
 
 let index = 0;
+let selectedMulti = [];
 
-/* ---------- QUIZ ---------- */
+/* ---------- START QUIZ ---------- */
 function startQuiz(){
   index = 0;
   renderQuestion();
 }
 
+/* ---------- RENDER QUESTION ---------- */
 function renderQuestion(){
+  selectedMulti = [];
   const q = quiz[index];
+
   let html = `<p>${q.q}</p>`;
   q.options.forEach((opt,i)=>{
     html += `<button class="option" data-i="${i}">${opt}</button>`;
   });
+
   app.innerHTML = html;
 
   document.querySelectorAll(".option").forEach(btn=>{
-    btn.onclick = ()=>checkAnswer(btn);
+    btn.onclick = () => handleAnswer(btn);
   });
 }
 
-function checkAnswer(btn){
-  const selected = Number(btn.dataset.i);
+/* ---------- ANSWER LOGIC (FIXED DALEJ) ---------- */
+function handleAnswer(btn){
   const q = quiz[index];
+  const i = Number(btn.dataset.i);
 
-  let isCorrect = q.correct.includes(selected);
+  // FREE QUESTION (без правильного ответа)
+  if(q.free){
+    showNextButton();
+    return;
+  }
 
-  document.querySelectorAll(".option").forEach((b,i)=>{
-    if(q.correct.includes(i)){
+  // MULTI SELECT
+  if(q.multi){
+    if(!selectedMulti.includes(i)){
+      selectedMulti.push(i);
+      btn.classList.add("correct");
+      btn.innerHTML += " 💖";
+    }
+
+    if(selectedMulti.length === q.correct.length){
+      showNextButton();
+    }
+    return;
+  }
+
+  // NORMAL QUESTION
+  document.querySelectorAll(".option").forEach((b,idx)=>{
+    if(q.correct.includes(idx)){
       b.classList.add("correct");
       b.innerHTML += " ✅";
-    } else if(i === selected){
+    } else if(idx === i){
       b.classList.add("wrong");
       b.innerHTML += " ❌";
     }
     b.disabled = true;
   });
 
-  // Переход дальше ТОЛЬКО если ответ правильный
-  if(isCorrect){
-    app.innerHTML += `<button class="next" onclick="nextQuestion()">Dalej ➡️</button>`;
+  showNextButton();
+}
+
+/* ---------- NEXT BUTTON (100% WORKING) ---------- */
+function showNextButton(){
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "next";
+  nextBtn.textContent = "Dalej ➡️";
+  nextBtn.onclick = nextQuestion;
+  app.appendChild(nextBtn);
+}
+
+function nextQuestion(){
+  index++;
+  if(index < quiz.length){
+    renderQuestion();
   } else {
-    app.innerHTML += `<button class="next" onclick="renderQuestion()">Spróbuj jeszcze raz 🔁</button>`;
+    drawHeart();
   }
 }
 
-
+/* ---------- PERFECT CENTER HEART (NO WHITE LINES) ---------- */
 function drawHeart(){
-  // УБИРАЕМ ВСЮ старую разметку включая белую карточку
   document.body.innerHTML = "";
+  document.body.style.background = "black";
+  document.body.style.margin = "0";
+  document.body.style.overflow = "hidden";
 
-  // создаём fullscreen canvas
   const canvas = document.createElement("canvas");
   document.body.appendChild(canvas);
-
   const ctx = canvas.getContext("2d");
 
   function resize(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
-
   resize();
   window.addEventListener("resize", resize);
-
-  document.body.style.margin = "0";
-  document.body.style.background = "black";
-  document.body.style.overflow = "hidden";
 
   let progress = 0;
 
@@ -258,7 +288,6 @@ function drawHeart(){
     for(let t = 0; t < progress; t += 0.01){
       let x = 16*Math.pow(Math.sin(t),3);
       let y = -(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
-
       ctx.lineTo(
         canvas.width/2 + x*scale,
         canvas.height/2 + y*scale
@@ -282,7 +311,6 @@ function drawHeart(){
 
   animate();
 }
-
 
 startScreen();
 </script>
